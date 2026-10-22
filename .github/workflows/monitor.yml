@@ -1,17 +1,19 @@
 name: Web Page Monitor
 
 on:
-  # 定时触发：这里设置为每小时运行一次（可根据需要修改 Cron 表达式）
   schedule:
-    - cron: '0 * * * *'
-  # 允许手动在网页端点击按钮触发运行
+    - cron: '3 * * * *'
   workflow_dispatch:
+
+# 明确在 YAML 中声明写入权限
+permissions:
+  contents: write
 
 jobs:
   check-changes:
     runs-on: ubuntu-latest
     steps:
-      # 1. 把仓库代码检出到运行环境
+      # 1. 检出代码
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -21,23 +23,27 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 3. 安装依赖（例如 requests 用于请求网页）
+      # 3. 安装依赖
       - name: Install dependencies
         run: |
           pip install requests
 
-      # 4. 运行你的监控脚本
+      # 4. 运行监控脚本
       - name: Run monitoring script
         env:
-          # 如果你需要通过 Telegram、钉钉或 Server酱发通知，可以在仓库的 Settings -> Secrets 中配置密钥，这里读取环境变量
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
           python monitor.py
 
-      # 5. 如果网页内容发生变化并生成了新快照，自动提交并推送到仓库
+      # 5. 自动提交变动（优化版 Git 提交逻辑）
       - name: Commit and push if changed
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.58.com"
-          git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update web snapshot [skip ci]" && git push)
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add snapshot.txt
+          if git diff --staged --quiet; then
+            echo "没有发现快照变化，跳过提交。"
+          else
+            git commit -m "chore: update web snapshot [skip ci]"
+            git push
+          fi
