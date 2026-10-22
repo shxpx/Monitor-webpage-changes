@@ -1,3 +1,4 @@
+from datetime import datetime
 import hashlib
 import os
 import requests
@@ -18,7 +19,6 @@ def fetch_web_content():
   try:
     response = requests.get(TARGET_URL, headers=headers, timeout=30)
     response.raise_for_status()
-    # 返回网页的正文或文本内容（也可以根据需要缩小范围提取特定标签）
     return response.text
   except Exception as e:
     print(f"抓取网页失败: {e}")
@@ -41,12 +41,25 @@ def main():
 
   # 对比内容是否有变化
   if current_hash != old_hash:
-    print("检测到网页内容发生变化！")
+    print("检测到网页内容发生变化！正在触发  Webhook...")
 
-    # TODO: 可以在这里添加发送通知的逻辑（例如调用 Server酱、Telegram Bot 或企业微信 Webhook）
-    # webhook_url = os.environ.get("WEBHOOK_URL")
-    # if webhook_url:
-    #     requests.post(webhook_url, json={"text": f"网页 {TARGET_URL} 内容更新啦！"})
+    # 从环境变量获取  Webhook 地址
+    url = os.environ.get("WEBHOOK_URL")
+    if url:
+      payload = {
+          "event": "web_page_changed",
+          "url": TARGET_URL,
+          "timestamp": datetime.utcnow().isoformat(),
+          "old_hash": old_hash,
+          "new_hash": current_hash,
+      }
+      try:
+        res = requests.post(url, json=payload, timeout=15)
+        print(f" Webhook 触发成功，状态码: {res.status_code}")
+      except Exception as e:
+        print(f"触发  Webhook 失败: {e}")
+    else:
+      print("警告: 未检测到 WEBHOOK_URL 环境变量。")
 
     # 更新本地快照文件
     with open(SNAPSHOT_FILE, "w", encoding="utf-8") as f:
