@@ -41,7 +41,7 @@ def main():
 
   # 对比内容是否有变化
   if current_hash != old_hash:
-    print("检测到网页内容发生变化！正在触发  Webhook...")
+    print("检测到网页内容发生变化！正在触发 n8n Webhook...")
 
     # 从环境变量获取  Webhook 地址
     url = os.environ.get("WEBHOOK_URL")
@@ -52,6 +52,10 @@ def main():
           "timestamp": datetime.utcnow().isoformat(),
           "old_hash": old_hash,
           "new_hash": current_hash,
+      }
+      headers = {
+          "Content-Type": "application/json",
+          "User-Agent": "GitHub-Actions-Monitor/1.0",
       }
       try:
         res = requests.post(url, json=payload, timeout=15)
