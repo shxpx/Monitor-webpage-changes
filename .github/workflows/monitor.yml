@@ -3,6 +3,10 @@ name: Web Page Monitor
 on:
   schedule:
     - cron: '3 * * * *'
+  # 允许外部通过 API 精准触发
+  repository_dispatch:
+    types: [trigger-monitor]
+  # 保留手动触发按钮，方便随时测试  
   workflow_dispatch:
 
 # 明确在 YAML 中声明写入权限
