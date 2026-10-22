@@ -58,7 +58,7 @@ def main():
           "User-Agent": "GitHub-Actions-Monitor/1.0",
       }
       try:
-        res = requests.post(url, json=payload, timeout=15)
+        res = requests.get(url,timeout=15)
         print(f" Webhook 触发成功，状态码: {res.status_code}")
       except Exception as e:
         print(f"触发  Webhook 失败: {e}")
