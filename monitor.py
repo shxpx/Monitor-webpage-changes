@@ -41,22 +41,11 @@ def main():
 
   # 对比内容是否有变化
   if current_hash != old_hash:
-    print("检测到网页内容发生变化！正在触发 n8n Webhook...")
+    print("检测到网页内容发生变化！正在触发 Webhook...")
 
     # 从环境变量获取  Webhook 地址
     url = os.environ.get("WEBHOOK_URL")
     if url:
-      payload = {
-          "event": "web_page_changed",
-          "url": TARGET_URL,
-          "timestamp": datetime.utcnow().isoformat(),
-          "old_hash": old_hash,
-          "new_hash": current_hash,
-      }
-      headers = {
-          "Content-Type": "application/json",
-          "User-Agent": "GitHub-Actions-Monitor/1.0",
-      }
       try:
         res = requests.get(url,timeout=15)
         print(f" Webhook 触发成功，状态码: {res.status_code}")
