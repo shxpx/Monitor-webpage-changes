@@ -1,4 +1,5 @@
 from datetime import datetime
+from bs4 import BeautifulSoup
 import hashlib
 import os
 import requests
@@ -19,6 +20,16 @@ def fetch_web_content():
   try:
     response = requests.get(TARGET_URL, headers=headers, timeout=30)
     response.raise_for_status()
+
+    # 解析 HTML 并精准提取 GitHub Wiki 的核心正文容器
+    soup = BeautifulSoup(response.text, "html.parser")
+    content_div = soup.find("div", class_="markdown-body")
+
+    if content_div:
+      # 返回正文的文本内容（或使用 content_div.encode_contents() 保留核心 HTML 结构）
+      return content_div.get_text()
+
+    # 如果没找到特定容器，退化为返回整体文本
     return response.text
   except Exception as e:
     print(f"抓取网页失败: {e}")
