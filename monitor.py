@@ -5,7 +5,7 @@ import os
 import requests
 
 # 1. 配置你要监控的目标网页 URL
-TARGET_URL = "https://github.com/Alvin9999-newpac/fanqiang/wiki/v2ray%E5%85%8D%E8%B4%B9%E8%B4%A6%E5%8F%B7"
+TARGET_URL = "https://gitlab.com/zhifan999/fq/-/wikis/v2ray%E5%85%8D%E8%B4%B9%E8%B4%A6%E5%8F%B7"
 # 2. 保存网页内容的本地快照文件名
 SNAPSHOT_FILE = "snapshot.txt"
 
